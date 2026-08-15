@@ -20,7 +20,7 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with: 
           token: ${{ secrets.VM_TOKEN }}
           fetch-depth: '2'
@@ -71,7 +71,7 @@ jobs:
           # never a branch, never releases/latest -- so the values and the
           # image that ships in that release are a matched pair. One fetch
           # per distinct BUILDER_VERSION (cached below), not one per release.
-          os="dragonflybsd"
+          os="nextbsd"
           mkdir -p /tmp/relindex
           # jq -r hands back the UNESCAPED string, which then lands in a sed
           # replacement (where the delimiter, & and backslash are special) and
@@ -211,7 +211,7 @@ jobs:
             base-vm/action.yml : action.yml
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
 
