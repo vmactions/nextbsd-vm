@@ -1,6 +1,4 @@
           - release: "continuous"
-            arch: aarch64
-          - release: "continuous"
             arch: riscv64
           - release: "continuous"
             arch: powerpc64
@@ -16,8 +14,6 @@
             arch: loongarch64
           - release: "continuous"
             arch: armv7
-          - release: ""
-            arch: aarch64
           - release: ""
             arch: riscv64
           - release: ""
