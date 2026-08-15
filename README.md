@@ -36,11 +36,12 @@ All the supported releases are here:
 
 
 
-| Release | x86_64 (amd64) |
-|---------|---------|
-| continuous | ✅ (rsync,scp,nfs,tar) |
+| Release | x86_64 (amd64) | aarch64 (arm64) |
+|---------|---------|---------|
+| continuous | ✅ (rsync,scp,nfs,tar) | ✅ (rsync,scp,nfs,tar) |
 
 <!-- arch-label: x86_64 = x86_64 (amd64) -->
+<!-- arch-label: aarch64 = aarch64 (arm64) -->
 NextBSD publishes no versioned releases: upstream refreshes a single rolling
 `continuous` tag on every push to main. Each builder release tag freezes one
 of those snapshots -- `nextbsd-version` and `/etc/os-release` inside the image
