@@ -14,6 +14,8 @@
             arch: i386
           - release: "continuous"
             arch: loongarch64
+          - release: "continuous"
+            arch: armv7
           - release: ""
             arch: aarch64
           - release: ""
@@ -30,3 +32,5 @@
             arch: i386
           - release: ""
             arch: loongarch64
+          - release: ""
+            arch: armv7
