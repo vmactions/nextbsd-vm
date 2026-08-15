@@ -1,6 +1,6 @@
-# Run GitHub CI in DragonflyBSD 
+# Run GitHub CI in NextBSD 
 
-![Test](https://github.com/vmactions/dragonflybsd-vm/workflows/Test/badge.svg)
+![Test](https://github.com/vmactions/nextbsd-vm/workflows/Test/badge.svg)
 
 
 
@@ -15,7 +15,7 @@ Powered by [AnyVM.org](https://anyvm.org)
 >
 > These VMs are now AI-ready. With the **[vmactions-ci skill](https://github.com/vmactions/vmactions-skill)**, an AI coding agent -- Claude Code, Codex, Copilot CLI, Gemini CLI, and others -- understands the full vmactions interface and writes the GitHub Actions CI for you, **automatically**.
 >
-> Just describe what you want in plain language, e.g. *"run my tests on DragonflyBSD"* or *"check that my project builds on DragonflyBSD aarch64"*, and the agent generates a correct, ready-to-commit `test.yml`. It will:
+> Just describe what you want in plain language, e.g. *"run my tests on NextBSD"* or *"check that my project builds on NextBSD aarch64"*, and the agent generates a correct, ready-to-commit `test.yml`. It will:
 >
 > - pick the right action, `release`, and `arch` for your target;
 > - install your toolchain and dependencies in the `prepare` step;
@@ -27,25 +27,33 @@ Powered by [AnyVM.org](https://anyvm.org)
 >
 > ### >> [Get the vmactions-ci skill](https://github.com/vmactions/vmactions-skill) <<
 
-Use this action to run your CI in DragonflyBSD.
+Use this action to run your CI in NextBSD.
 
-The github workflow only supports Ubuntu, Windows and MacOS. But what if you need to use DragonflyBSD?
+The github workflow only supports Ubuntu, Windows and MacOS. But what if you need to use NextBSD?
 
 
 All the supported releases are here:
 
 
 
-| Release | x86_64(amd64) |
+| Release | x86_64 (amd64) |
 |---------|---------|
-| 6.4.2 | ✅ (rsync,scp,nfs) |
-| 6.4.1 | ✅ (rsync,scp,nfs) |
-| 6.4.0 | ✅ (rsync,scp,nfs) |
+| continuous | ✅ (rsync,scp,nfs,tar) |
 
-<!-- arch-label: x86_64 = x86_64(amd64) -->
-Note: sshfs is not offered on DragonFlyBSD -- the sshfs (FUSE) mount is
-read-only in practice (the guest can read the shared dir, but writing a file
-back into the mount fails), so only rsync / scp / nfs are listed.
+<!-- arch-label: x86_64 = x86_64 (amd64) -->
+NextBSD publishes no versioned releases: upstream refreshes a single rolling
+`continuous` tag on every push to main. Each builder release tag freezes one
+of those snapshots -- `nextbsd-version` and `/etc/os-release` inside the image
+name the exact upstream build it was cut from.
+
+`nfs` works only because `hooks/vm_postBuild.sh` installs `/etc/netconfig`.
+The kernel's NFS client, `/sbin/mount_nfs` and `/usr/sbin/rpcbind` are all in
+the image, but the curated `/etc` overlay omits the RPC netid table, so every
+mount used to fail with `tcp: Netconfig database not found`.
+
+No `sshfs`: the NEXTBSD kernel is built `NO_MODULES` and the image ships no
+`kldload` (Darwin's `kextload` replaces it and only loads kext bundles), so
+`fusefs` cannot be loaded and there is no `/dev/fuse`.
 
 
 
@@ -62,15 +70,15 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: A job to run test in DragonflyBSD
+    name: A job to run test in NextBSD
     env:
       MYTOKEN : ${{ secrets.MYTOKEN }}
       MYTOKEN2: "value2"
     steps:
     - uses: actions/checkout@v6
-    - name: Test in DragonflyBSD
+    - name: Test in NextBSD
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         envs: 'MYTOKEN MYTOKEN2'
         usesh: true
@@ -91,7 +99,7 @@ jobs:
 ```
 
 
-The latest major version is: `v1`, which is the most recommended to use. (You can also use the latest full version: `v1.3.1`)  
+The latest major version is: `v0`, which is the most recommended to use. (You can also use the latest full version: `v0.0.0`)  
 
 
 If you are migrating from the previous `v0`, please change the `runs-on: ` to `runs-on: ubuntu-latest`
@@ -126,7 +134,7 @@ The code is shared from the host to the VM via `rsync` by default, you can choos
 
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         sync: sshfs  # or: nfs
 
@@ -148,7 +156,7 @@ When using `rsync` or `scp`,  you can define `copyback: false` to not copy files
 
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         sync: rsync
         copyback: false
@@ -171,7 +179,7 @@ You can add NAT port between the host and the VM.
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         nat: |
           "8080": "80"
@@ -190,7 +198,7 @@ The default memory of the VM is 6144MB, you can use `mem` option to set the memo
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         mem: 4096
 ...
@@ -204,7 +212,7 @@ The VM is using all the cpu cores of the host by default, you can use `cpu` opti
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         cpu: 3
 ...
@@ -213,31 +221,18 @@ The VM is using all the cpu cores of the host by default, you can use `cpu` opti
 
 ## 5. Select release
 
-It uses [the DragonflyBSD 6.4.2](conf/default.release.conf) by default, you can use `release` option to use another version of DragonflyBSD:
+It uses [the NextBSD continuous](conf/default.release.conf) by default, you can use `release` option to use another version of NextBSD:
 
 ```yaml
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
-        release: "6.4.0"
+        release: "continuous"
 ...
 ```
 
-You can also give only the leading, `.` separated part of a release. The newest release that starts with it is used, so the workflow does not have to be edited for every point release:
-
-```yaml
-...
-    - name: Test
-      id: test
-      uses: vmactions/dragonflybsd-vm@v1
-      with:
-        release: "6"
-...
-```
-
-Here `release: "6"` runs the newest `6.x` release of DragonflyBSD. Give more parts to narrow it down: `release: "6.4"` runs the newest `6.4.x`. Each part you give has to match in full, so a release that does not exist fails the job instead of quietly falling back to another one.
 
 ## 6. Select architecture
 
@@ -247,7 +242,7 @@ The vm is using x86_64(AMD64) by default, but you can use `arch` option to chang
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         arch: aarch64
 ...
@@ -269,16 +264,16 @@ Support custom shell:
     - uses: actions/checkout@v6
     - name: Start VM
       id: vm
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         sync: nfs
     - name: Custom shell step 1
-      shell: dragonflybsd {0}
+      shell: nextbsd {0}
       run: |
         pwd
         echo "this is step 1, running inside the VM"
     - name: Custom shell step 2
-      shell: dragonflybsd {0}
+      shell: nextbsd {0}
       run: |
         pwd
         echo "this is step 2, running inside the VM"
@@ -300,7 +295,7 @@ You can also use `custom-shell-name` to set a custom name for the shell wrapper:
     - uses: actions/checkout@v6
     - name: Start VM
       id: vm
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         sync: nfs
         custom-shell-name: vmsh
@@ -326,7 +321,7 @@ If the time in VM is not correct, You can use `sync-time` option to synchronize 
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         sync-time: true
 ...
@@ -341,7 +336,7 @@ By default, the action caches `apt` packages on the host and VM images/artifacts
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         disable-cache: true
 ...
@@ -356,7 +351,7 @@ The `prepare` step (installing packages etc.) normally runs on every build. With
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         cache-after-prepare: true
         prepare: |
@@ -389,7 +384,7 @@ Then use it in the workflow:
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         debug-on-error: ${{ vars.DEBUG_ON_ERROR }}
 
@@ -402,7 +397,7 @@ You can also set the `vnc-password` parameter to set a custom password to protec
 ...
     - name: Test
       id: test
-      uses: vmactions/dragonflybsd-vm@v1
+      uses: vmactions/nextbsd-vm@v0
       with:
         debug-on-error: ${{ vars.DEBUG_ON_ERROR }}
         vnc-password: ${{ secrets.VNC_PASSWORD }}
@@ -419,7 +414,7 @@ See more: [debug on error](https://github.com/vmactions/.github/wiki/debug%E2%80
 
 # Under the hood
 
-We use Qemu to run the DragonflyBSD VM.
+We use Qemu to run the NextBSD VM.
 
 
 
