@@ -28,7 +28,7 @@ jobs:
       matrix:
         release: [ "continuous"
 , ""]
-        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64"]
+        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64", "armv7"]
         runs: [ "ubuntu-24.04", "ubuntu-24.04-arm"]
         exclude:
           - runs: "ubuntu-24.04-arm"
@@ -47,6 +47,8 @@ jobs:
             arch: "i386"
           - runs: "ubuntu-24.04-arm"
             arch: "loongarch64"
+          - runs: "ubuntu-24.04-arm"
+            arch: "armv7"
           # Manual matrix excludes only; combos with no conf are auto-excluded.
           - release: "continuous"
             arch: aarch64
@@ -102,7 +104,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'sshfs') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         envs: 'DEBUG MYTOKEN MYTOKEN2'
         prepare: |
@@ -187,7 +189,7 @@ jobs:
       matrix:
         release: [ "continuous"
 , ""]
-        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64"]
+        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64", "armv7"]
         runs: [ "ubuntu-24.04", "ubuntu-24.04-arm"]
         exclude:
           - runs: "ubuntu-24.04-arm"
@@ -206,6 +208,8 @@ jobs:
             arch: "i386"
           - runs: "ubuntu-24.04-arm"
             arch: "loongarch64"
+          - runs: "ubuntu-24.04-arm"
+            arch: "armv7"
           # Manual matrix excludes only; combos with no conf are auto-excluded.
           - release: "continuous"
             arch: aarch64
@@ -253,7 +257,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'nfs') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         envs: 'DEBUG MYTOKEN MYTOKEN2'
         prepare: |
@@ -339,7 +343,7 @@ jobs:
       matrix:
         release: [ "continuous"
 , ""]
-        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64"]
+        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64", "armv7"]
         runs: [ "ubuntu-24.04", "ubuntu-24.04-arm"]
         exclude:
           - runs: "ubuntu-24.04-arm"
@@ -358,6 +362,8 @@ jobs:
             arch: "i386"
           - runs: "ubuntu-24.04-arm"
             arch: "loongarch64"
+          - runs: "ubuntu-24.04-arm"
+            arch: "armv7"
           # Manual matrix excludes only; combos with no conf are auto-excluded.
           - release: "continuous"
             arch: aarch64
@@ -412,7 +418,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'scp') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         envs: 'DEBUG MYTOKEN MYTOKEN2'
         prepare: |
@@ -501,6 +507,66 @@ jobs:
 
 
 
+  # One-shot tar sync (push at boot, pull at the end). This is the ONLY
+  # transport the telnet guests (ReactOS, Redox, RISC OS) have, and a
+  # declared-but-otherwise-untested method on the ssh guests whose builders
+  # list it. ONE leg per repo, on purpose: default release, default arch --
+  # tar's transport does not vary per release, so a full matrix would only
+  # burn runners. The gate greps the rendered sync map JSON as a string
+  # ('tar' is not a substring of any other method name); a per-arch lookup
+  # would wrongly skip the repos with no x86_64 arch at all (ReactOS is
+  # i386-only, RISC OS armv7-only -- their default arch comes from
+  # DEFAULT_ARCH in conf/default.release.conf). The in-guest command body is
+  # per-repo data (VM_TAR_RUN / VM_TAR_VERIFY in datafile.ini): the telnet
+  # guests speak their own command languages, so no shared POSIX script can
+  # run everywhere. A repo that defines neither still tests boot + push +
+  # copyback.
+  testtar:
+    runs-on: ubuntu-24.04
+    name: tar NextBSD
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+    - uses: actions/checkout@v7
+    - name: Test in NextBSD
+      if: ${{ contains('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}', 'tar') }}
+      id: test
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
+      with:
+        mem: 4096
+        debug: true
+        sync: tar
+        run: |
+
+    - name: Verify tar copyback on host
+      if: ${{ contains('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}', 'tar') }}
+      run: |
+        set -e
+        ls -lah "$HOME/work"
+
+    - name: Collect VM debug artifacts
+      if: failure()
+      run: |
+        mkdir -p ./vm-debug-artifacts
+        find /home/runner/work/_actions -type d -name output 2>/dev/null | while read d; do
+          find "$d" -type f \( -name "*.log" -o -name "*.ppm" \) | while read f; do
+            rel="${f#/home/runner/work/_actions/}"
+            mkdir -p "./vm-debug-artifacts/$(dirname "$rel")"
+            cp "$f" "./vm-debug-artifacts/$rel"
+          done
+        done
+        echo "Collected:"
+        find ./vm-debug-artifacts -type f || true
+    - name: Upload VM debug artifacts
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: vm-debug-${{ github.job }}-${{ strategy.job-index }}
+        path: vm-debug-artifacts/
+        retention-days: 7
+        if-no-files-found: ignore
+
+
 
 
   test:
@@ -509,7 +575,7 @@ jobs:
       matrix:
         release: [ "continuous"
 , ""]
-        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64"]
+        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64", "armv7"]
         runs: [ "ubuntu-24.04", "ubuntu-24.04-arm"]
         disableCache: [ "", "true"]
         exclude:
@@ -529,6 +595,8 @@ jobs:
             arch: "i386"
           - runs: "ubuntu-24.04-arm"
             arch: "loongarch64"
+          - runs: "ubuntu-24.04-arm"
+            arch: "armv7"
           # Manual matrix excludes only; combos with no conf are auto-excluded.
           - release: "continuous"
             arch: aarch64
@@ -576,7 +644,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         envs: 'MYTOKEN MYTOKEN2'
         prepare: |
@@ -656,7 +724,7 @@ jobs:
       matrix:
         release: [ "continuous"
 , ""]
-        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64"]
+        arch: [ "aarch64", "", "riscv64", "powerpc64", "sparc64", "ppc64le", "s390x", "i386", "loongarch64", "armv7"]
         runs: [ "ubuntu-24.04", "ubuntu-24.04-arm"]
         exclude:
           - runs: "ubuntu-24.04-arm"
@@ -675,6 +743,8 @@ jobs:
             arch: "i386"
           - runs: "ubuntu-24.04-arm"
             arch: "loongarch64"
+          - runs: "ubuntu-24.04-arm"
+            arch: "armv7"
           # Manual matrix excludes only; combos with no conf are auto-excluded.
           - release: "continuous"
             arch: aarch64
@@ -722,7 +792,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         envs: 'MYTOKEN MYTOKEN2'
         prepare: |
@@ -841,7 +911,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')['x86_64'], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         mem: 4096
         debug: true
@@ -901,7 +971,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":[],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[]}')['x86_64'], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         mem: 4096
         debug: true
@@ -962,7 +1032,7 @@ jobs:
     - name: Test in NextBSD
       id: testerr
       continue-on-error: true
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         debug: true
         run: |
@@ -989,7 +1059,7 @@ jobs:
     - name: Test in NextBSD
       id: testpass
       continue-on-error: true
-      uses: vmactions/nextbsd-vm@b17f87abf798fa5497b7d7296779aec383c888a9
+      uses: vmactions/nextbsd-vm@eafb6605e3031a6f36d41a034fcb445b39210e12
       with:
         debug: true
         run: |
