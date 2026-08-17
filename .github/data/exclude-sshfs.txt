@@ -1,0 +1,8 @@
+          - release: "continuous"
+            arch: ""
+          - release: "continuous"
+            arch: "aarch64"
+          - release: ""
+            arch: ""
+          - release: ""
+            arch: "aarch64"
