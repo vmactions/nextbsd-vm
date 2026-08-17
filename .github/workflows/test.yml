@@ -118,7 +118,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'sshfs') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         envs: 'DEBUG MYTOKEN MYTOKEN2'
         prepare: |
@@ -273,7 +273,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'nfs') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         envs: 'DEBUG MYTOKEN MYTOKEN2'
         prepare: |
@@ -436,7 +436,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'scp') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         envs: 'DEBUG MYTOKEN MYTOKEN2'
         prepare: |
@@ -566,7 +566,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}', 'tar') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         mem: 4096
         debug: true
@@ -633,7 +633,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}', '9p') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         mem: 4096
         debug: true
@@ -750,7 +750,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         envs: 'MYTOKEN MYTOKEN2'
         prepare: |
@@ -900,7 +900,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')[matrix.arch == '' && 'x86_64' || matrix.arch], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         envs: 'MYTOKEN MYTOKEN2'
         prepare: |
@@ -1019,7 +1019,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')['x86_64'], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         mem: 4096
         debug: true
@@ -1079,7 +1079,7 @@ jobs:
     - name: Test in NextBSD
       if: ${{ contains(fromJSON('{"x86_64":["rsync","scp","nfs","tar"],"aarch64":["rsync","scp","nfs","tar"],"riscv64":[],"powerpc64":[],"sparc64":[],"ppc64le":[],"s390x":[],"i386":[],"loongarch64":[],"armv7":[]}')['x86_64'], 'rsync') }}
       id: test
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         mem: 4096
         debug: true
@@ -1155,7 +1155,7 @@ jobs:
     - name: Test in NextBSD
       id: testerr
       continue-on-error: true
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         debug: true
         # A command that EXISTS and fails, rather than `false` or a made-up
@@ -1201,7 +1201,7 @@ jobs:
     - name: Test in NextBSD
       id: testpass
       continue-on-error: true
-      uses: vmactions/nextbsd-vm@f1a1af4594ab0cfa96382ce9c7f3a97e7c184c84
+      uses: vmactions/nextbsd-vm@f4a4a1c192cd6f062be1b2f71f75e56d81e69c6b
       with:
         debug: true
         # No `true` and no double quotes: this body runs on every guest, and
