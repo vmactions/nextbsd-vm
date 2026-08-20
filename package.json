@@ -1,6 +1,6 @@
 {
   "name": "vmactions-NextBSD",
-  "version": "",
+  "version": "1.0.0",
   "description": "GitHub actions for NextBSD",
   "type": "module",
   "main": "index.js",
