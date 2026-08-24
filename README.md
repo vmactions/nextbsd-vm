@@ -56,6 +56,19 @@ No `sshfs`: the NEXTBSD kernel is built `NO_MODULES` and the image ships no
 `kldload` (Darwin's `kextload` replaces it and only loads kext bundles), so
 `fusefs` cannot be loaded and there is no `/dev/fuse`.
 
+How the images are built:
+
+Each image is built automatically in the
+[anyvm-org/nextbsd-builder](https://github.com/anyvm-org/nextbsd-builder)
+repo's GitHub Actions: it downloads the prebuilt NextBSD disk image
+published by the NextBSD (redux) project, boots it in QEMU, enables
+ssh, pre-installs the packages listed in the conf, and exports the disk
+as a compressed qcow2 image.
+
+Upstream media: the `continuous` prerelease images from
+https://github.com/nextbsd-redux/nextbsd/releases (project site:
+https://nextbsd.org).
+
 
 
 
@@ -149,7 +162,7 @@ The code is shared from the host to the VM via `rsync` by default, you can choos
 You can also set `sync: no`, so the files will not be synced to the  VM.
 
 
-When using `rsync` or `scp`,  you can define `copyback: false` to not copy files back from the VM in to the host.
+When using a copy based sync method (`rsync`, `scp`, `tar` or `9p`), you can define `copyback: false` to not copy files back from the VM to the host. It has no effect on `sshfs` and `nfs`, which are live mounts and never copy back.
 
 
 ```yaml
